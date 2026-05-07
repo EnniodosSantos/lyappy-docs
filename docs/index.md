@@ -4,8 +4,6 @@
 
 ## Installing
 
-Lyapy can be installed via the command line using:
-
 ```
 pip install lyapy
 ```
@@ -16,15 +14,16 @@ pip install lyapy
 from lyapy import LogisticMap
 
 # Initialize the map with steps and transient
-map_obj = LogisticMap(steps=1000, trans=100)
+m = LogisticMap(steps=1000, trans=100)
 
 # Get a complete summary
-summary = map_obj.lyapunov_summary()
+summary = m.lyapunov_summary()
 print(f"Estimated Lambda: {summary['estimated']}")
 
 # Generate plots
-map_obj.time_series(plot=True)
-map_obj.lyapunov_convergence(plot=True)
+m.time_series(plot=True)
+m.lyapunov_convergence(plot=True)
+m.plot_density()
 ```
 
 ## Class Initialization
@@ -33,15 +32,15 @@ map_obj.lyapunov_convergence(plot=True)
     <b>ChaoticMap</b><span>(steps, trans, x0=None, prec=50, seed=None)</span>
 </div>
 
-Base class constructor for all chaotic maps. All map classes inherit from `ChaoticMap` and share this interface.
+Base class for all chaotic maps. All map classes inherit from `ChaoticMap` and share this interface.
 
 **Parameters:**
 
 :   **steps** (int): Number of iterations used to compute the map evolution and Lyapunov average.
 
-:   **trans** (int): Number of transient iterations to be discarded.
+:   **trans** (int): Number of transient iterations to be discarded before recording the orbit.
 
-:   **x0** (float/Decimal, optional): Initial condition. If `None`, it is sampled randomly from the map's domain.
+:   **x0** (float/Decimal, optional): Initial condition. If `None`, sampled randomly from the map's domain.
 
 :   **prec** (int): Decimal precision for calculations (default: `50`).
 
@@ -64,25 +63,33 @@ Base class constructor for all chaotic maps. All map classes inherit from `Chaot
     <b>available_maps</b><span>()</span>
 </div>
 
-Return the list of chaotic maps implemented in the package.
+Returns and prints the list of all chaotic map classes implemented in the package.
 
 **Returns:**
 
-:   **values** (*list of str*): Names of the available chaotic maps.
+:   **values** (*list of str*): Names of the available chaotic map classes.
 
 **Examples**
 
 ```python
 >>> import lyapy
 >>> lyapy.available_maps()
-['Gauss',
- 'Logistic',
- 'Bernoulli',
- 'Ulam',
- 'Tent',
- 'Asymmetric Tent',
- 'Chebyshev',
- 'Generalized Bernoulli']
+Available maps on Lyapy:
+ - LogisticMap
+ - GeneralizedLogisticMap
+ - UlamMap
+ - GeneralizedUlamMap
+ - BernoulliMap
+ - GaussMap
+ - TentMap
+ - AsymetricMap
+ - ChebyshevMap
+ - GeneralizedBernoulliMap
+ - KT1Map
+ - KT2Map
+ - Manneville
+ - ConjugateTentMap
+ - ThalerMap
 ```
 
 ---
@@ -95,17 +102,17 @@ Return the list of chaotic maps implemented in the package.
     <b>time_series</b><span>(dec=False, plot=False)</span>
 </div>
 
-Computes the evolution of the chaotic map after discarding the transient.
+Computes the orbit of the chaotic map after discarding the transient.
 
 **Parameters:**
 
-:   **dec** (*bool*): Whether to return a list of `Decimal` objects (if `True`) or a `numpy.array` (if `False`, default).
+:   **dec** (*bool*): If `True`, returns a list of `Decimal` objects. If `False` (default), returns a `numpy.array` of floats.
 
-:   **plot** (*bool*): Whether to show a plot of the time series (default: `False`).
+:   **plot** (*bool*): If `True`, displays a plot of the time series (default: `False`).
 
 **Returns:**
 
-:   **values** (*numpy.array or list of Decimal*): Time series of the chaotic map evolution.
+:   **values** (*numpy.array or list of Decimal*): Time series of the map orbit.
 
 **Examples**
 
@@ -118,8 +125,8 @@ array([0.88, 0.24, 0.48, 0.96, ..., 0.64, 0.72, 0.56])
 [Decimal('0.88'), Decimal('0.24'), ...]
 
 >>> m.time_series(plot=True)
-# output plot
-array([0.88, 0.24, 0.48, 0.96, ... , 0.64, 0.72, 0.56])
+# displays plot
+array([0.88, 0.24, 0.48, 0.96, ..., 0.64, 0.72, 0.56])
 ```
 
 ---
@@ -130,15 +137,17 @@ array([0.88, 0.24, 0.48, 0.96, ... , 0.64, 0.72, 0.56])
     <b>lyapunov_estimated</b><span>(dec=False)</span>
 </div>
 
-Computes the estimated Lyapunov Exponent of the chaotic map.
+Computes the estimated Lyapunov exponent of the chaotic map using the standard time-average formula:
+
+$$\lambda_e = \frac{1}{N} \sum_{n=0}^{N-1} \ln |f'(x_n)|$$
 
 **Parameters:**
 
-:   **dec** (*bool*): Whether to return a `Decimal` object (if `True`) or a `float` (if `False`, default).
+:   **dec** (*bool*): If `True`, returns a `Decimal`. If `False` (default), returns a `float`.
 
 **Returns:**
 
-:   **values** (*float or Decimal*): The estimated Lyapunov Exponent.
+:   **values** (*float or Decimal*): The estimated Lyapunov exponent.
 
 **Examples**
 
@@ -159,15 +168,15 @@ Decimal('0.69314718055994530941723212145817656807550013436')
     <b>lyapunov_convergence</b><span>(plot=False)</span>
 </div>
 
-Computes the convergence of the Lyapunov Exponent over iterations.
+Computes the running average of the Lyapunov exponent over iterations, showing its convergence to the estimated value.
 
 **Parameters:**
 
-:   **plot** (*bool*): Whether to show a plot of the convergence (default: `False`).
+:   **plot** (*bool*): If `True`, displays a convergence plot with the theoretical value as reference (default: `False`).
 
 **Returns:**
 
-:   **values** (*numpy.array*): Array of running Lyapunov Exponent averages at each iteration step.
+:   **values** (*numpy.array*): Array of running Lyapunov exponent averages at each iteration step.
 
 **Examples**
 
@@ -177,7 +186,7 @@ Computes the convergence of the Lyapunov Exponent over iterations.
 array([0.90973773, 0.41082964, 0.69907782, ..., 0.69323049])
 
 >>> m.lyapunov_convergence(plot=True)
-# output plot
+# displays plot
 ```
 
 ---
@@ -188,11 +197,11 @@ array([0.90973773, 0.41082964, 0.69907782, ..., 0.69323049])
     <b>theoretical_lyapunov</b>
 </div>
 
-Property that returns the analytical Lyapunov Exponent of the map.
+Property that returns the analytical Lyapunov exponent of the map.
 
 **Returns:**
 
-:   **values** (*Decimal or None*): The theoretical Lyapunov Exponent. Returns `None` for maps or parameter values where the theoretical value is undefined (e.g., `LogisticMap` with `r ≠ 4`).
+:   **values** (*Decimal or None*): The theoretical Lyapunov exponent. Returns `None` for maps or parameter values where no closed form exists (e.g., `LogisticMap` with `r ≠ 4`). Raises `NotImplementedError` for maps where the theoretical value is structurally unavailable.
 
 **Examples**
 
@@ -204,6 +213,10 @@ Property that returns the analytical Lyapunov Exponent of the map.
 >>> m = LogisticMap(steps=1000, trans=100, r=3)
 >>> m.theoretical_lyapunov is None
 True
+
+>>> m = Manneville(steps=1000, trans=100, epslon=0.5)
+>>> m.theoretical_lyapunov
+NotImplementedError: No closed form available
 ```
 
 ---
@@ -214,11 +227,11 @@ True
     <b>lyapunov_summary</b><span>(dec=False)</span>
 </div>
 
-Generates a complete summary of the map, including the estimated and theoretical Lyapunov Exponents, relative error, and the full time series.
+Generates a complete summary of the map, including the estimated and theoretical Lyapunov exponents, relative error, and the full time series. For maps without a closed-form theoretical value, `theoretical` is `None` and `error_percent` is `"N/A"`.
 
 **Parameters:**
 
-:   **dec** (*bool*): Whether to return high-precision `Decimal` values for all numeric fields (default: `False`).
+:   **dec** (*bool*): If `True`, returns high-precision `Decimal` values for all numeric fields (default: `False`).
 
 **Returns:**
 
@@ -227,9 +240,9 @@ Generates a complete summary of the map, including the estimated and theoretical
 | Key | Type | Description |
 |-----|------|-------------|
 | `map` | str | Class name of the map |
-| `theoretical` | float or Decimal | Theoretical Lyapunov Exponent |
-| `estimated` | float or Decimal | Estimated Lyapunov Exponent |
-| `error_percent` | str | Relative error between estimated and theoretical (formatted string) |
+| `theoretical` | float, Decimal, or None | Theoretical Lyapunov exponent; `None` if unavailable |
+| `estimated` | float or Decimal | Estimated Lyapunov exponent |
+| `error_percent` | str | Relative error between estimated and theoretical; `"N/A"` if theoretical is unavailable |
 | `steps` | int | Number of iterations used |
 | `transient` | int | Number of transient iterations discarded |
 | `x0` | float or Decimal | Initial condition used |
@@ -248,15 +261,73 @@ Generates a complete summary of the map, including the estimated and theoretical
  'transient': 100,
  'x0': 0.69,
  'time_series': array([0.88, 0.24, 0.48, ...])}
+
+>>> m = Manneville(steps=1000, trans=100, epslon=0.5)
+>>> m.lyapunov_summary()
+{'map': 'Manneville',
+ 'theoretical': None,
+ 'estimated': 0.405...,
+ 'error_percent': 'N/A',
+ ...}
+```
+
+---
+
+#### Plot Density
+
+<div class="func-header">
+    <b>plot_density</b><span>(bins=50, figsize=(8, 5), color='#2c3e50', show_analytical=True)</span>
+</div>
+
+Plots the invariant density estimated from the map orbit via histogram. If `density()` is implemented for the map and `show_analytical=True`, the exact analytical curve is overlaid for comparison.
+
+The orbit used is the same generated by `time_series()` — the number of points is controlled by `steps` and `trans` at instantiation.
+
+**Parameters:**
+
+:   **bins** (*int*): Number of histogram bins (default: `50`).
+
+:   **figsize** (*tuple*): Figure size in inches (default: `(8, 5)`).
+
+:   **color** (*str*): Bar color (default: `'#2c3e50'`).
+
+:   **show_analytical** (*bool*): If `True` and `density()` is implemented, overlays the exact analytical curve in red (default: `True`).
+
+**Returns:**
+
+:   `None`. Displays the plot directly.
+
+**Notes:**
+
+Maps without `density()` implemented display only the histogram, without raising errors. Maps with singularities at domain boundaries (e.g., `UlamMap` at ±1, `LogisticMap` at 0 and 1) may show boundary bins underestimated relative to the analytical curve — this is a known finite-sample effect of histogram estimation near divergences.
+
+**Examples**
+
+```python
+>>> m = LogisticMap(steps=10000, trans=400, r=4)
+>>> m.plot_density()
+# displays histogram + analytical curve 1/(pi*sqrt(x*(1-x)))
+
+>>> m = GaussMap(steps=10000, trans=100)
+>>> m.plot_density(bins=80, color='teal')
+# displays histogram + analytical curve 1/(ln2*(1+x))
+
+>>> m = Manneville(steps=10000, trans=100, epslon=0.5)
+>>> m.plot_density()
+# displays histogram only — density() implemented but theoretical_lyapunov unavailable
+
+>>> m = GeneralizedUlamMap(steps=10000, trans=100, r=1.8)
+>>> m.plot_density(show_analytical=False)
+# displays histogram only
 ```
 
 ---
 
 ## List of Maps
 
-In chaos theory, maps (also known as iterated maps, difference equations, or recursion relations) are dynamical systems in which time is discrete rather than continuous.[^1] The simulation of discrete maps is fundamental, as they serve as controlled environments for the study of chaotic systems, allowing the observation of complex phenomena through the evolution of discrete orbits rather than continuous flows.[^1]
+In chaos theory, maps (also known as iterated maps or difference equations) are dynamical systems in which time is discrete rather than continuous.[^1] The simulation of discrete maps is fundamental, as they serve as controlled environments for the study of chaotic systems, allowing observation of complex phenomena through the evolution of discrete orbits rather than continuous flows.[^1]
 
-To see the available maps use `lyapy.available_maps()`.
+To see all available maps use `lyapy.available_maps()`.
 
 ---
 
@@ -266,7 +337,25 @@ To see the available maps use `lyapy.available_maps()`.
 
 **Equation:** $x_{n+1} = rx_n(1 - x_n)$
 
-**Theoretical Lyapunov Exponent:** $\lambda = \ln(2)$ *(only defined for $r = 4$)*
+**Theoretical Lyapunov exponent:** $\lambda = \ln 2$ *(only defined for $r = 4$; returns `None` otherwise)*
+
+**Invariant density:** $\rho(x) = \dfrac{1}{\pi\sqrt{x(1-x)}}$ *(only for $r = 4$)*
+
+**Domain:** $[0, 1]$
+
+---
+
+### Generalized Logistic Map
+
+**Class:** `GeneralizedLogisticMap(steps, trans, b=1, x0=None, prec=50, seed=None)`
+
+**Equation:** $x_{n+1} = 4^b \, x \left(1 - x^{1/b}\right)^b$
+
+**Theoretical Lyapunov exponent:** $\lambda = \ln 2$
+
+**Invariant density:** $\rho(x) = \dfrac{x^{\frac{1}{2b}-1}}{\pi \, b \, \sqrt{1 - x^{1/b}}}$
+
+**Domain:** $[0, 1]$
 
 ---
 
@@ -276,17 +365,25 @@ To see the available maps use `lyapy.available_maps()`.
 
 **Equation:** $x_{n+1} = 1 - 2x_n^2$
 
-**Theoretical Lyapunov Exponent:** $\lambda = \ln(2)$
+**Theoretical Lyapunov exponent:** $\lambda = \ln 2$
+
+**Invariant density:** $\rho(x) = \dfrac{1}{\pi\sqrt{1 - x^2}}$
+
+**Domain:** $[-1, 1]$
 
 ---
 
-### Gauss Map
+### Generalized Ulam Map
 
-**Class:** `GaussMap(steps, trans, x0=None, prec=50, seed=None)`
+**Class:** `GeneralizedUlamMap(steps, trans, r, x0=None, prec=50, seed=None)`
 
-**Equation:** $x_{n+1} = \frac{1}{x_n} \pmod 1$
+**Equation:** $x_{n+1} = 1 - r x_n^2$
 
-**Theoretical Lyapunov Exponent:** $\lambda = \dfrac{\pi^2}{6\ln(2)}$
+**Theoretical Lyapunov exponent:** no closed form available
+
+**Invariant density:** not implemented
+
+**Domain:** $[-1, 1]$
 
 ---
 
@@ -294,9 +391,43 @@ To see the available maps use `lyapy.available_maps()`.
 
 **Class:** `BernoulliMap(steps, trans, x0=None, prec=50, seed=None)`
 
-**Equation:** $x_{n+1} = 2x_n \pmod 1$
+**Equation:** $x_{n+1} = 2x_n \bmod 1$
 
-**Theoretical Lyapunov Exponent:** $\lambda = \ln(2)$
+**Theoretical Lyapunov exponent:** $\lambda = \ln 2$
+
+**Invariant density:** $\rho(x) \sim U(0, 1)$
+
+**Domain:** $[0, 1]$
+
+---
+
+### Generalized Bernoulli Map
+
+**Class:** `GeneralizedBernoulliMap(steps, trans, m=2, x0=None, prec=50, seed=None)`
+
+**Equation:** $x_{n+1} = mx_n \bmod 1$
+
+**Theoretical Lyapunov exponent:** $\lambda = \ln m$
+
+**Invariant density:** $\rho(x) \sim U(0, 1)$
+
+**Domain:** $[0, 1]$
+
+*(Default $m = 2$ recovers the standard Bernoulli map)*
+
+---
+
+### Gauss Map
+
+**Class:** `GaussMap(steps, trans, x0=None, prec=50, seed=None)`
+
+**Equation:** $x_{n+1} = \dfrac{1}{x_n} - \left\lfloor\dfrac{1}{x_n}\right\rfloor$
+
+**Theoretical Lyapunov exponent:** $\lambda = \dfrac{\pi^2}{6\ln 2} \approx 2.373$
+
+**Invariant density:** $\rho(x) = \dfrac{1}{\ln 2 \,(1 + x)}$
+
+**Domain:** $(0, 1)$
 
 ---
 
@@ -306,7 +437,11 @@ To see the available maps use `lyapy.available_maps()`.
 
 **Equation:** $x_{n+1} = 2\min(x_n,\, 1 - x_n)$
 
-**Theoretical Lyapunov Exponent:** $\lambda = \ln(2)$
+**Theoretical Lyapunov exponent:** $\lambda = \ln 2$
+
+**Invariant density:** $\rho(x) \sim U(0, 1)$
+
+**Domain:** $[0, 1]$
 
 ---
 
@@ -318,9 +453,13 @@ To see the available maps use `lyapy.available_maps()`.
 
 $$x_{n+1} = \begin{cases} x_n / a & \text{if } x_n < a \\ (1 - x_n)/(1 - a) & \text{otherwise} \end{cases}$$
 
-**Theoretical Lyapunov Exponent:** $\lambda = -a\ln(a) - (1-a)\ln(1-a)$
+**Theoretical Lyapunov exponent:** $\lambda = -a\ln a - (1-a)\ln(1-a)$
 
-*(Default $a = 0.4$)*
+**Invariant density:** $\rho(x) \sim U(0, 1)$
+
+**Domain:** $[0, 1]$
+
+*(Parameter $a = 0.4$ is fixed in the current implementation)*
 
 ---
 
@@ -328,23 +467,95 @@ $$x_{n+1} = \begin{cases} x_n / a & \text{if } x_n < a \\ (1 - x_n)/(1 - a) & \t
 
 **Class:** `ChebyshevMap(steps, trans, k=2, x0=None, prec=50, seed=None)`
 
-**Equation:** $x_{n+1} = T_k(x_n)$, where $T_k$ is the Chebyshev polynomial of degree $k$
+**Equation:** $x_{n+1} = \cos(k \arccos x_n)$
 
-**Theoretical Lyapunov Exponent:** $\lambda = \ln(k)$
+**Theoretical Lyapunov exponent:** $\lambda = \ln k$
 
-*(Default $k = 2$)*
+**Invariant density:** $\rho(x) = \dfrac{1}{\pi\sqrt{1 - x^2}}$
+
+**Domain:** $[-1, 1]$
+
+*(Analytical density valid only for $k \in \mathbb{Z}$, $k \geq 2$)*
 
 ---
 
-### Generalized Bernoulli Map
+### KT1 Map
 
-**Class:** `GeneralizedBernoulliMap(steps, trans, m=2, x0=None, prec=50, seed=None)`
+**Class:** `KT1Map(steps, trans, gamma, x0=None, prec=50, seed=None)`
 
-**Equation:** $x_{n+1} = mx_n \pmod 1$
+**Equation:**
 
-**Theoretical Lyapunov Exponent:** $\lambda = \ln(m)$
+$$x_{n+1} = \begin{cases} x / \gamma & \text{if } x < \gamma \\ (\gamma x - \gamma^2)/(1 - \gamma) & \text{otherwise} \end{cases}$$
 
-*(Default $m = 2$, which recovers the standard Bernoulli Map)*
+**Theoretical Lyapunov exponent:**
+
+$$\lambda = \frac{\ln(1/\gamma)}{2 - \gamma} + \frac{(1-\gamma)\,\ln\!\left(\frac{\gamma}{1-\gamma}\right)}{2 - \gamma}$$
+
+**Invariant density:** not implemented
+
+**Domain:** $[0, 1]$
+
+---
+
+### KT2 Map
+
+**Class:** `KT2Map(steps, trans, gamma, x0=None, prec=50, seed=None)`
+
+**Equation:**
+
+$$x_{n+1} = \begin{cases} \dfrac{\gamma x}{1-\gamma} + (1-\gamma) & \text{if } x < 1-\gamma \\[6pt] \dfrac{x - (1-\gamma)}{\gamma} & \text{otherwise} \end{cases}$$
+
+**Theoretical Lyapunov exponent:**
+
+$$\lambda = \frac{\ln(1/\gamma)}{2 - \gamma} + \frac{(1-\gamma)\,\ln\!\left(\frac{\gamma}{1-\gamma}\right)}{2 - \gamma}$$
+
+**Invariant density:** not implemented
+
+**Domain:** $[0, 1]$
+
+---
+
+### Manneville Map
+
+**Class:** `Manneville(steps, trans, epslon, x0=None, prec=50, seed=None)`
+
+**Equation:** $x_{n+1} = \bigl[(1+\varepsilon)x + (1-\varepsilon)x^2\bigr] \bmod 1$
+
+**Theoretical Lyapunov exponent:** no closed form available
+
+**Invariant density:** $\rho(x) = K\!\left(\dfrac{1}{\varepsilon+(1-\varepsilon)x} + \dfrac{1}{1+(1-\varepsilon)x}\right)$
+
+**Domain:** $[0, 1]$
+
+---
+
+### Conjugate Tent Map
+
+**Class:** `ConjugateTentMap(steps, trans, p, x0=None, prec=50, seed=None)`
+
+**Equation:**
+
+$$x_{n+1} = \begin{cases} x / p^2 & \text{if } x \leq p^2 \\ (1 - \sqrt{x})^2/(1-p)^2 & \text{otherwise} \end{cases}$$
+
+**Theoretical Lyapunov exponent:** no closed form available
+
+**Invariant density:** $\rho(x) = \dfrac{1}{2\sqrt{x}}$
+
+**Domain:** $[0, 1]$
+
+---
+
+### Thaler Map
+
+**Class:** `ThalerMap(steps, trans, z, x0=None, prec=50, seed=None)`
+
+**Equation:** $x_{n+1} = x\!\left(1 + g(x)\right)^{-1/(z-2)} \bmod 1$
+
+**Theoretical Lyapunov exponent:** no closed form available
+
+**Invariant density:** $\rho(x) \propto x^{-1/\alpha} + (1+x)^{-1/\alpha}$, $\;\alpha = \tfrac{1}{z-1}$ *(not normalized)*
+
+**Domain:** $[0, 1]$
 
 ---
 
