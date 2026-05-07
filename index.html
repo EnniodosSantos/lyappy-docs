@@ -62,17 +62,25 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#lyapunov-summary">Lyapunov Summary</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#plot-density">Plot Density</a>
+    </li>
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#list-of-maps">List of Maps</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#logistic-map">Logistic Map</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#generalized-logistic-map">Generalized Logistic Map</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#ulam-map">Ulam Map</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#gauss-map">Gauss Map</a>
+    <li class="toctree-l3"><a class="reference internal" href="#generalized-ulam-map">Generalized Ulam Map</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#bernoulli-map">Bernoulli Map</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#generalized-bernoulli-map">Generalized Bernoulli Map</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gauss-map">Gauss Map</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#tent-map">Tent Map</a>
     </li>
@@ -80,7 +88,15 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#chebyshev-map">Chebyshev Map</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#generalized-bernoulli-map">Generalized Bernoulli Map</a>
+    <li class="toctree-l3"><a class="reference internal" href="#kt1-map">KT1 Map</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#kt2-map">KT2 Map</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manneville-map">Manneville Map</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#conjugate-tent-map">Conjugate Tent Map</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#thaler-map">Thaler Map</a>
     </li>
         </ul>
     </li>
@@ -119,39 +135,39 @@
                 <h1 id="about-lyapy">About Lyapy</h1>
 <p><code>lyapy</code> is a pure Python library for the generation and analysis of synthetic chaotic time series derived from discrete dynamical systems with exact Lyapunov exponents and analytically known invariant measures.</p>
 <h2 id="installing">Installing</h2>
-<p>Lyapy can be installed via the command line using:</p>
 <pre><code>pip install lyapy
 </code></pre>
 <h2 id="basic-usage">Basic Usage</h2>
 <pre><code class="language-python">from lyapy import LogisticMap
 
 # Initialize the map with steps and transient
-map_obj = LogisticMap(steps=1000, trans=100)
+m = LogisticMap(steps=1000, trans=100)
 
 # Get a complete summary
-summary = map_obj.lyapunov_summary()
+summary = m.lyapunov_summary()
 print(f&quot;Estimated Lambda: {summary['estimated']}&quot;)
 
 # Generate plots
-map_obj.time_series(plot=True)
-map_obj.lyapunov_convergence(plot=True)
+m.time_series(plot=True)
+m.lyapunov_convergence(plot=True)
+m.plot_density()
 </code></pre>
 <h2 id="class-initialization">Class Initialization</h2>
 <div class="func-header">
     <b>ChaoticMap</b><span>(steps, trans, x0=None, prec=50, seed=None)</span>
 </div>
 
-<p>Base class constructor for all chaotic maps. All map classes inherit from <code>ChaoticMap</code> and share this interface.</p>
+<p>Base class for all chaotic maps. All map classes inherit from <code>ChaoticMap</code> and share this interface.</p>
 <dl>
 <dt><strong>Parameters:</strong></dt>
 <dd>
 <p><strong>steps</strong> (int): Number of iterations used to compute the map evolution and Lyapunov average.</p>
 </dd>
 <dd>
-<p><strong>trans</strong> (int): Number of transient iterations to be discarded.</p>
+<p><strong>trans</strong> (int): Number of transient iterations to be discarded before recording the orbit.</p>
 </dd>
 <dd>
-<p><strong>x0</strong> (float/Decimal, optional): Initial condition. If <code>None</code>, it is sampled randomly from the map's domain.</p>
+<p><strong>x0</strong> (float/Decimal, optional): Initial condition. If <code>None</code>, sampled randomly from the map's domain.</p>
 </dd>
 <dd>
 <p><strong>prec</strong> (int): Decimal precision for calculations (default: <code>50</code>).</p>
@@ -173,24 +189,32 @@ map_obj.lyapunov_convergence(plot=True)
     <b>available_maps</b><span>()</span>
 </div>
 
-<p>Return the list of chaotic maps implemented in the package.</p>
+<p>Returns and prints the list of all chaotic map classes implemented in the package.</p>
 <dl>
 <dt><strong>Returns:</strong></dt>
 <dd>
-<p><strong>values</strong> (<em>list of str</em>): Names of the available chaotic maps.</p>
+<p><strong>values</strong> (<em>list of str</em>): Names of the available chaotic map classes.</p>
 </dd>
 </dl>
 <p><strong>Examples</strong></p>
 <pre><code class="language-python">&gt;&gt;&gt; import lyapy
 &gt;&gt;&gt; lyapy.available_maps()
-['Gauss',
- 'Logistic',
- 'Bernoulli',
- 'Ulam',
- 'Tent',
- 'Asymmetric Tent',
- 'Chebyshev',
- 'Generalized Bernoulli']
+Available maps on Lyapy:
+ - LogisticMap
+ - GeneralizedLogisticMap
+ - UlamMap
+ - GeneralizedUlamMap
+ - BernoulliMap
+ - GaussMap
+ - TentMap
+ - AsymetricMap
+ - ChebyshevMap
+ - GeneralizedBernoulliMap
+ - KT1Map
+ - KT2Map
+ - Manneville
+ - ConjugateTentMap
+ - ThalerMap
 </code></pre>
 <hr />
 <h2 id="methods">Methods</h2>
@@ -199,18 +223,18 @@ map_obj.lyapunov_convergence(plot=True)
     <b>time_series</b><span>(dec=False, plot=False)</span>
 </div>
 
-<p>Computes the evolution of the chaotic map after discarding the transient.</p>
+<p>Computes the orbit of the chaotic map after discarding the transient.</p>
 <dl>
 <dt><strong>Parameters:</strong></dt>
 <dd>
-<p><strong>dec</strong> (<em>bool</em>): Whether to return a list of <code>Decimal</code> objects (if <code>True</code>) or a <code>numpy.array</code> (if <code>False</code>, default).</p>
+<p><strong>dec</strong> (<em>bool</em>): If <code>True</code>, returns a list of <code>Decimal</code> objects. If <code>False</code> (default), returns a <code>numpy.array</code> of floats.</p>
 </dd>
 <dd>
-<p><strong>plot</strong> (<em>bool</em>): Whether to show a plot of the time series (default: <code>False</code>).</p>
+<p><strong>plot</strong> (<em>bool</em>): If <code>True</code>, displays a plot of the time series (default: <code>False</code>).</p>
 </dd>
 <dt><strong>Returns:</strong></dt>
 <dd>
-<p><strong>values</strong> (<em>numpy.array or list of Decimal</em>): Time series of the chaotic map evolution.</p>
+<p><strong>values</strong> (<em>numpy.array or list of Decimal</em>): Time series of the map orbit.</p>
 </dd>
 </dl>
 <p><strong>Examples</strong></p>
@@ -222,8 +246,8 @@ array([0.88, 0.24, 0.48, 0.96, ..., 0.64, 0.72, 0.56])
 [Decimal('0.88'), Decimal('0.24'), ...]
 
 &gt;&gt;&gt; m.time_series(plot=True)
-# output plot
-array([0.88, 0.24, 0.48, 0.96, ... , 0.64, 0.72, 0.56])
+# displays plot
+array([0.88, 0.24, 0.48, 0.96, ..., 0.64, 0.72, 0.56])
 </code></pre>
 <hr />
 <h4 id="lyapunov-estimated">Lyapunov Estimated</h4>
@@ -231,15 +255,16 @@ array([0.88, 0.24, 0.48, 0.96, ... , 0.64, 0.72, 0.56])
     <b>lyapunov_estimated</b><span>(dec=False)</span>
 </div>
 
-<p>Computes the estimated Lyapunov Exponent of the chaotic map.</p>
+<p>Computes the estimated Lyapunov exponent of the chaotic map using the standard time-average formula:</p>
+<div class="arithmatex">\[\lambda_e = \frac{1}{N} \sum_{n=0}^{N-1} \ln |f'(x_n)|\]</div>
 <dl>
 <dt><strong>Parameters:</strong></dt>
 <dd>
-<p><strong>dec</strong> (<em>bool</em>): Whether to return a <code>Decimal</code> object (if <code>True</code>) or a <code>float</code> (if <code>False</code>, default).</p>
+<p><strong>dec</strong> (<em>bool</em>): If <code>True</code>, returns a <code>Decimal</code>. If <code>False</code> (default), returns a <code>float</code>.</p>
 </dd>
 <dt><strong>Returns:</strong></dt>
 <dd>
-<p><strong>values</strong> (<em>float or Decimal</em>): The estimated Lyapunov Exponent.</p>
+<p><strong>values</strong> (<em>float or Decimal</em>): The estimated Lyapunov exponent.</p>
 </dd>
 </dl>
 <p><strong>Examples</strong></p>
@@ -256,15 +281,15 @@ Decimal('0.69314718055994530941723212145817656807550013436')
     <b>lyapunov_convergence</b><span>(plot=False)</span>
 </div>
 
-<p>Computes the convergence of the Lyapunov Exponent over iterations.</p>
+<p>Computes the running average of the Lyapunov exponent over iterations, showing its convergence to the estimated value.</p>
 <dl>
 <dt><strong>Parameters:</strong></dt>
 <dd>
-<p><strong>plot</strong> (<em>bool</em>): Whether to show a plot of the convergence (default: <code>False</code>).</p>
+<p><strong>plot</strong> (<em>bool</em>): If <code>True</code>, displays a convergence plot with the theoretical value as reference (default: <code>False</code>).</p>
 </dd>
 <dt><strong>Returns:</strong></dt>
 <dd>
-<p><strong>values</strong> (<em>numpy.array</em>): Array of running Lyapunov Exponent averages at each iteration step.</p>
+<p><strong>values</strong> (<em>numpy.array</em>): Array of running Lyapunov exponent averages at each iteration step.</p>
 </dd>
 </dl>
 <p><strong>Examples</strong></p>
@@ -273,7 +298,7 @@ Decimal('0.69314718055994530941723212145817656807550013436')
 array([0.90973773, 0.41082964, 0.69907782, ..., 0.69323049])
 
 &gt;&gt;&gt; m.lyapunov_convergence(plot=True)
-# output plot
+# displays plot
 </code></pre>
 <hr />
 <h4 id="theoretical-lyapunov">Theoretical Lyapunov</h4>
@@ -281,11 +306,11 @@ array([0.90973773, 0.41082964, 0.69907782, ..., 0.69323049])
     <b>theoretical_lyapunov</b>
 </div>
 
-<p>Property that returns the analytical Lyapunov Exponent of the map.</p>
+<p>Property that returns the analytical Lyapunov exponent of the map.</p>
 <dl>
 <dt><strong>Returns:</strong></dt>
 <dd>
-<p><strong>values</strong> (<em>Decimal or None</em>): The theoretical Lyapunov Exponent. Returns <code>None</code> for maps or parameter values where the theoretical value is undefined (e.g., <code>LogisticMap</code> with <code>r ≠ 4</code>).</p>
+<p><strong>values</strong> (<em>Decimal or None</em>): The theoretical Lyapunov exponent. Returns <code>None</code> for maps or parameter values where no closed form exists (e.g., <code>LogisticMap</code> with <code>r ≠ 4</code>). Raises <code>NotImplementedError</code> for maps where the theoretical value is structurally unavailable.</p>
 </dd>
 </dl>
 <p><strong>Examples</strong></p>
@@ -296,6 +321,10 @@ array([0.90973773, 0.41082964, 0.69907782, ..., 0.69323049])
 &gt;&gt;&gt; m = LogisticMap(steps=1000, trans=100, r=3)
 &gt;&gt;&gt; m.theoretical_lyapunov is None
 True
+
+&gt;&gt;&gt; m = Manneville(steps=1000, trans=100, epslon=0.5)
+&gt;&gt;&gt; m.theoretical_lyapunov
+NotImplementedError: No closed form available
 </code></pre>
 <hr />
 <h4 id="lyapunov-summary">Lyapunov Summary</h4>
@@ -303,11 +332,11 @@ True
     <b>lyapunov_summary</b><span>(dec=False)</span>
 </div>
 
-<p>Generates a complete summary of the map, including the estimated and theoretical Lyapunov Exponents, relative error, and the full time series.</p>
+<p>Generates a complete summary of the map, including the estimated and theoretical Lyapunov exponents, relative error, and the full time series. For maps without a closed-form theoretical value, <code>theoretical</code> is <code>None</code> and <code>error_percent</code> is <code>"N/A"</code>.</p>
 <dl>
 <dt><strong>Parameters:</strong></dt>
 <dd>
-<p><strong>dec</strong> (<em>bool</em>): Whether to return high-precision <code>Decimal</code> values for all numeric fields (default: <code>False</code>).</p>
+<p><strong>dec</strong> (<em>bool</em>): If <code>True</code>, returns high-precision <code>Decimal</code> values for all numeric fields (default: <code>False</code>).</p>
 </dd>
 <dt><strong>Returns:</strong></dt>
 <dd>
@@ -330,18 +359,18 @@ True
 </tr>
 <tr>
 <td><code>theoretical</code></td>
-<td>float or Decimal</td>
-<td>Theoretical Lyapunov Exponent</td>
+<td>float, Decimal, or None</td>
+<td>Theoretical Lyapunov exponent; <code>None</code> if unavailable</td>
 </tr>
 <tr>
 <td><code>estimated</code></td>
 <td>float or Decimal</td>
-<td>Estimated Lyapunov Exponent</td>
+<td>Estimated Lyapunov exponent</td>
 </tr>
 <tr>
 <td><code>error_percent</code></td>
 <td>str</td>
-<td>Relative error between estimated and theoretical (formatted string)</td>
+<td>Relative error between estimated and theoretical; <code>"N/A"</code> if theoretical is unavailable</td>
 </tr>
 <tr>
 <td><code>steps</code></td>
@@ -376,55 +405,179 @@ True
  'transient': 100,
  'x0': 0.69,
  'time_series': array([0.88, 0.24, 0.48, ...])}
+
+&gt;&gt;&gt; m = Manneville(steps=1000, trans=100, epslon=0.5)
+&gt;&gt;&gt; m.lyapunov_summary()
+{'map': 'Manneville',
+ 'theoretical': None,
+ 'estimated': 0.405...,
+ 'error_percent': 'N/A',
+ ...}
+</code></pre>
+<hr />
+<h4 id="plot-density">Plot Density</h4>
+<div class="func-header">
+    <b>plot_density</b><span>(bins=50, figsize=(8, 5), color='#2c3e50', show_analytical=True)</span>
+</div>
+
+<p>Plots the invariant density estimated from the map orbit via histogram. If <code>density()</code> is implemented for the map and <code>show_analytical=True</code>, the exact analytical curve is overlaid for comparison.</p>
+<p>The orbit used is the same generated by <code>time_series()</code> — the number of points is controlled by <code>steps</code> and <code>trans</code> at instantiation.</p>
+<dl>
+<dt><strong>Parameters:</strong></dt>
+<dd>
+<p><strong>bins</strong> (<em>int</em>): Number of histogram bins (default: <code>50</code>).</p>
+</dd>
+<dd>
+<p><strong>figsize</strong> (<em>tuple</em>): Figure size in inches (default: <code>(8, 5)</code>).</p>
+</dd>
+<dd>
+<p><strong>color</strong> (<em>str</em>): Bar color (default: <code>'#2c3e50'</code>).</p>
+</dd>
+<dd>
+<p><strong>show_analytical</strong> (<em>bool</em>): If <code>True</code> and <code>density()</code> is implemented, overlays the exact analytical curve in red (default: <code>True</code>).</p>
+</dd>
+<dt><strong>Returns:</strong></dt>
+<dd>
+<p><code>None</code>. Displays the plot directly.</p>
+</dd>
+</dl>
+<p><strong>Notes:</strong></p>
+<p>Maps without <code>density()</code> implemented display only the histogram, without raising errors. Maps with singularities at domain boundaries (e.g., <code>UlamMap</code> at ±1, <code>LogisticMap</code> at 0 and 1) may show boundary bins underestimated relative to the analytical curve — this is a known finite-sample effect of histogram estimation near divergences.</p>
+<p><strong>Examples</strong></p>
+<pre><code class="language-python">&gt;&gt;&gt; m = LogisticMap(steps=10000, trans=400, r=4)
+&gt;&gt;&gt; m.plot_density()
+# displays histogram + analytical curve 1/(pi*sqrt(x*(1-x)))
+
+&gt;&gt;&gt; m = GaussMap(steps=10000, trans=100)
+&gt;&gt;&gt; m.plot_density(bins=80, color='teal')
+# displays histogram + analytical curve 1/(ln2*(1+x))
+
+&gt;&gt;&gt; m = Manneville(steps=10000, trans=100, epslon=0.5)
+&gt;&gt;&gt; m.plot_density()
+# displays histogram only — density() implemented but theoretical_lyapunov unavailable
+
+&gt;&gt;&gt; m = GeneralizedUlamMap(steps=10000, trans=100, r=1.8)
+&gt;&gt;&gt; m.plot_density(show_analytical=False)
+# displays histogram only
 </code></pre>
 <hr />
 <h2 id="list-of-maps">List of Maps</h2>
-<p>In chaos theory, maps (also known as iterated maps, difference equations, or recursion relations) are dynamical systems in which time is discrete rather than continuous.[^1] The simulation of discrete maps is fundamental, as they serve as controlled environments for the study of chaotic systems, allowing the observation of complex phenomena through the evolution of discrete orbits rather than continuous flows.[^1]</p>
-<p>To see the available maps use <code>lyapy.available_maps()</code>.</p>
+<p>In chaos theory, maps (also known as iterated maps or difference equations) are dynamical systems in which time is discrete rather than continuous.[^1] The simulation of discrete maps is fundamental, as they serve as controlled environments for the study of chaotic systems, allowing observation of complex phenomena through the evolution of discrete orbits rather than continuous flows.[^1]</p>
+<p>To see all available maps use <code>lyapy.available_maps()</code>.</p>
 <hr />
 <h3 id="logistic-map">Logistic Map</h3>
 <p><strong>Class:</strong> <code>LogisticMap(steps, trans, r=4, x0=None, prec=50, seed=None)</code></p>
 <p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = rx_n(1 - x_n)\)</span></p>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = \ln(2)\)</span> <em>(only defined for <span class="arithmatex">\(r = 4\)</span>)</em></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \ln 2\)</span> <em>(only defined for <span class="arithmatex">\(r = 4\)</span>; returns <code>None</code> otherwise)</em></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) = \dfrac{1}{\pi\sqrt{x(1-x)}}\)</span> <em>(only for <span class="arithmatex">\(r = 4\)</span>)</em></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<hr />
+<h3 id="generalized-logistic-map">Generalized Logistic Map</h3>
+<p><strong>Class:</strong> <code>GeneralizedLogisticMap(steps, trans, b=1, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = 4^b \, x \left(1 - x^{1/b}\right)^b\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \ln 2\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) = \dfrac{x^{\frac{1}{2b}-1}}{\pi \, b \, \sqrt{1 - x^{1/b}}}\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
 <hr />
 <h3 id="ulam-map">Ulam Map</h3>
 <p><strong>Class:</strong> <code>UlamMap(steps, trans, x0=None, prec=50, seed=None)</code></p>
 <p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = 1 - 2x_n^2\)</span></p>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = \ln(2)\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \ln 2\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) = \dfrac{1}{\pi\sqrt{1 - x^2}}\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([-1, 1]\)</span></p>
 <hr />
-<h3 id="gauss-map">Gauss Map</h3>
-<p><strong>Class:</strong> <code>GaussMap(steps, trans, x0=None, prec=50, seed=None)</code></p>
-<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = \frac{1}{x_n} \pmod 1\)</span></p>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = \dfrac{\pi^2}{6\ln(2)}\)</span></p>
+<h3 id="generalized-ulam-map">Generalized Ulam Map</h3>
+<p><strong>Class:</strong> <code>GeneralizedUlamMap(steps, trans, r, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = 1 - r x_n^2\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> no closed form available</p>
+<p><strong>Invariant density:</strong> not implemented</p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([-1, 1]\)</span></p>
 <hr />
 <h3 id="bernoulli-map">Bernoulli Map</h3>
 <p><strong>Class:</strong> <code>BernoulliMap(steps, trans, x0=None, prec=50, seed=None)</code></p>
-<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = 2x_n \pmod 1\)</span></p>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = \ln(2)\)</span></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = 2x_n \bmod 1\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \ln 2\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) \sim U(0, 1)\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<hr />
+<h3 id="generalized-bernoulli-map">Generalized Bernoulli Map</h3>
+<p><strong>Class:</strong> <code>GeneralizedBernoulliMap(steps, trans, m=2, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = mx_n \bmod 1\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \ln m\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) \sim U(0, 1)\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<p><em>(Default <span class="arithmatex">\(m = 2\)</span> recovers the standard Bernoulli map)</em></p>
+<hr />
+<h3 id="gauss-map">Gauss Map</h3>
+<p><strong>Class:</strong> <code>GaussMap(steps, trans, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = \dfrac{1}{x_n} - \left\lfloor\dfrac{1}{x_n}\right\rfloor\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \dfrac{\pi^2}{6\ln 2} \approx 2.373\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) = \dfrac{1}{\ln 2 \,(1 + x)}\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\((0, 1)\)</span></p>
 <hr />
 <h3 id="tent-map">Tent Map</h3>
 <p><strong>Class:</strong> <code>TentMap(steps, trans, x0=None, prec=50, seed=None)</code></p>
 <p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = 2\min(x_n,\, 1 - x_n)\)</span></p>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = \ln(2)\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \ln 2\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) \sim U(0, 1)\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
 <hr />
 <h3 id="asymmetric-tent-map">Asymmetric Tent Map</h3>
 <p><strong>Class:</strong> <code>AsymetricMap(steps, trans, x0=None, prec=50, seed=None)</code></p>
 <p><strong>Equation:</strong></p>
 <div class="arithmatex">\[x_{n+1} = \begin{cases} x_n / a &amp; \text{if } x_n &lt; a \\ (1 - x_n)/(1 - a) &amp; \text{otherwise} \end{cases}\]</div>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = -a\ln(a) - (1-a)\ln(1-a)\)</span></p>
-<p><em>(Default <span class="arithmatex">\(a = 0.4\)</span>)</em></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = -a\ln a - (1-a)\ln(1-a)\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) \sim U(0, 1)\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<p><em>(Parameter <span class="arithmatex">\(a = 0.4\)</span> is fixed in the current implementation)</em></p>
 <hr />
 <h3 id="chebyshev-map">Chebyshev Map</h3>
 <p><strong>Class:</strong> <code>ChebyshevMap(steps, trans, k=2, x0=None, prec=50, seed=None)</code></p>
-<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = T_k(x_n)\)</span>, where <span class="arithmatex">\(T_k\)</span> is the Chebyshev polynomial of degree <span class="arithmatex">\(k\)</span></p>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = \ln(k)\)</span></p>
-<p><em>(Default <span class="arithmatex">\(k = 2\)</span>)</em></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = \cos(k \arccos x_n)\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> <span class="arithmatex">\(\lambda = \ln k\)</span></p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) = \dfrac{1}{\pi\sqrt{1 - x^2}}\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([-1, 1]\)</span></p>
+<p><em>(Analytical density valid only for <span class="arithmatex">\(k \in \mathbb{Z}\)</span>, <span class="arithmatex">\(k \geq 2\)</span>)</em></p>
 <hr />
-<h3 id="generalized-bernoulli-map">Generalized Bernoulli Map</h3>
-<p><strong>Class:</strong> <code>GeneralizedBernoulliMap(steps, trans, m=2, x0=None, prec=50, seed=None)</code></p>
-<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = mx_n \pmod 1\)</span></p>
-<p><strong>Theoretical Lyapunov Exponent:</strong> <span class="arithmatex">\(\lambda = \ln(m)\)</span></p>
-<p><em>(Default <span class="arithmatex">\(m = 2\)</span>, which recovers the standard Bernoulli Map)</em></p>
+<h3 id="kt1-map">KT1 Map</h3>
+<p><strong>Class:</strong> <code>KT1Map(steps, trans, gamma, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong></p>
+<div class="arithmatex">\[x_{n+1} = \begin{cases} x / \gamma &amp; \text{if } x &lt; \gamma \\ (\gamma x - \gamma^2)/(1 - \gamma) &amp; \text{otherwise} \end{cases}\]</div>
+<p><strong>Theoretical Lyapunov exponent:</strong></p>
+<div class="arithmatex">\[\lambda = \frac{\ln(1/\gamma)}{2 - \gamma} + \frac{(1-\gamma)\,\ln\!\left(\frac{\gamma}{1-\gamma}\right)}{2 - \gamma}\]</div>
+<p><strong>Invariant density:</strong> not implemented</p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<hr />
+<h3 id="kt2-map">KT2 Map</h3>
+<p><strong>Class:</strong> <code>KT2Map(steps, trans, gamma, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong></p>
+<div class="arithmatex">\[x_{n+1} = \begin{cases} \dfrac{\gamma x}{1-\gamma} + (1-\gamma) &amp; \text{if } x &lt; 1-\gamma \\[6pt] \dfrac{x - (1-\gamma)}{\gamma} &amp; \text{otherwise} \end{cases}\]</div>
+<p><strong>Theoretical Lyapunov exponent:</strong></p>
+<div class="arithmatex">\[\lambda = \frac{\ln(1/\gamma)}{2 - \gamma} + \frac{(1-\gamma)\,\ln\!\left(\frac{\gamma}{1-\gamma}\right)}{2 - \gamma}\]</div>
+<p><strong>Invariant density:</strong> not implemented</p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<hr />
+<h3 id="manneville-map">Manneville Map</h3>
+<p><strong>Class:</strong> <code>Manneville(steps, trans, epslon, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = \bigl[(1+\varepsilon)x + (1-\varepsilon)x^2\bigr] \bmod 1\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> no closed form available</p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) = K\!\left(\dfrac{1}{\varepsilon+(1-\varepsilon)x} + \dfrac{1}{1+(1-\varepsilon)x}\right)\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<hr />
+<h3 id="conjugate-tent-map">Conjugate Tent Map</h3>
+<p><strong>Class:</strong> <code>ConjugateTentMap(steps, trans, p, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong></p>
+<div class="arithmatex">\[x_{n+1} = \begin{cases} x / p^2 &amp; \text{if } x \leq p^2 \\ (1 - \sqrt{x})^2/(1-p)^2 &amp; \text{otherwise} \end{cases}\]</div>
+<p><strong>Theoretical Lyapunov exponent:</strong> no closed form available</p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) = \dfrac{1}{2\sqrt{x}}\)</span></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
+<hr />
+<h3 id="thaler-map">Thaler Map</h3>
+<p><strong>Class:</strong> <code>ThalerMap(steps, trans, z, x0=None, prec=50, seed=None)</code></p>
+<p><strong>Equation:</strong> <span class="arithmatex">\(x_{n+1} = x\!\left(1 + g(x)\right)^{-1/(z-2)} \bmod 1\)</span></p>
+<p><strong>Theoretical Lyapunov exponent:</strong> no closed form available</p>
+<p><strong>Invariant density:</strong> <span class="arithmatex">\(\rho(x) \propto x^{-1/\alpha} + (1+x)^{-1/\alpha}\)</span>, <span class="arithmatex">\(\;\alpha = \tfrac{1}{z-1}\)</span> <em>(not normalized)</em></p>
+<p><strong>Domain:</strong> <span class="arithmatex">\([0, 1]\)</span></p>
 <hr />
 <h2 id="references">References</h2>
 <p>[^1]: STROGATZ, Steven H. <strong>Nonlinear Dynamics and Chaos</strong>: With Applications to Physics, Biology, Chemistry, and Engineering. 2. ed. CRC Press, 2014.</p>
@@ -479,5 +632,5 @@ True
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-03-02 04:26:33.911635+00:00
+Build Date UTC : 2026-05-07 22:01:04.539872+00:00
 -->
